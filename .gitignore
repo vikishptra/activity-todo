@@ -1,0 +1,9 @@
+.idea/
+.DS_Store
+.env
+config.json
+*.app
+*.exe
+*.log
+*.db
+*/node_modules/
