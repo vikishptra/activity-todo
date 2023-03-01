@@ -1,6 +1,10 @@
 package application
 
 import (
+	"os"
+
+	"github.com/go-redis/redis"
+
 	"vikishptra/domain_todos/controller/todosapi"
 	"vikishptra/domain_todos/gateway/withgorm"
 	"vikishptra/domain_todos/usecase/findoneactivities"
@@ -28,6 +32,11 @@ func NewTodos() gogen.Runner {
 
 func (todos) Run() error {
 
+	// err := godotenv.Load(".env")
+	// if err != nil {
+	// 	panic(err)
+	// }
+
 	const appName = "todos"
 
 	cfg := config.ReadConfig()
@@ -38,7 +47,13 @@ func (todos) Run() error {
 
 	jwtToken := token.NewJWTToken(cfg.JWTSecretKey)
 
-	datasource := withgorm.NewGateway(log, appData, cfg)
+	redis := redis.NewClient(&redis.Options{
+		Addr:     os.Getenv("REDIS_HOST") + ":" + os.Getenv("REDIS_PORT"),
+		Password: "",
+		DB:       0,
+	})
+
+	datasource := withgorm.NewGateway(log, appData, cfg, redis)
 
 	httpHandler := server.NewGinHTTPHandler(log, cfg.Servers[appName].Address, appData)
 
